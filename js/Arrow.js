@@ -56,17 +56,10 @@ export class Arrow {
 
                         // remove enemy from scene.enemy array
                         this.scene.enemy.splice(this.scene.enemy.indexOf(enemy), 1);
-                        this.scene.enemy.push(new Enemy(this.scene, null));
-
                         this.archer.kills++;
-
-                        // get the mesh touched
-                        var mesh = evt.meshUnderPointer;
-                        console.log(evt);
+                        this.archer.game.checkWave();
                     }));
         });
-
-
     }
 
     update() {

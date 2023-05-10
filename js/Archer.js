@@ -1,10 +1,11 @@
 import { Arrow } from "./Arrow.js";
 import { loadCrossHair, createArcCamera } from "./Utils.js";
 export class Archer {
-    constructor(archerMesh, id, speed, scaling, scene, skeletons, arrow) {
+    constructor(archerMesh, id, speed, scaling, scene, skeletons, arrow, game) {
         this.archerMesh = archerMesh;
         this.skeletons = skeletons;
         this.id = id;
+        this.game = game;
         this.orignalSpeed = new BABYLON.Vector3(speed / 2, speed, speed);
         this.speed = new BABYLON.Vector3(speed / 2, speed, speed);
         this.constSpeed = speed;
@@ -56,6 +57,11 @@ export class Archer {
 
         //this.arrow = new Arrow(this.scene, arrow, this);
 
+    }
+
+    destruct() {
+        this.bounder.dispose();
+        this.archerMesh.dispose();
     }
 
     createCrossHair() {
@@ -196,14 +202,7 @@ export class Archer {
             spaceBar = true;
         }
         if (scene.inputMap["lmb"]) {
-            // this.setCurrentAnimation("StdAiming");
-            // this.doAnimation(false);
-
             this.fireArrow();
-            // setTimeout(() => {
-            //     this.tpsCamera();
-            // }, 1000);
-
         }
 
         if (scene.inputMap["mousex"]) {
