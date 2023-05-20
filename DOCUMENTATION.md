@@ -2,7 +2,7 @@ Overview:
 Archery Tournament is a browser-based game developed by Chahan Movsessian using BabylonJS. The game is a survival-style archery game where the player takes on the role of an archer and tries to survive four waves of enemies on different maps. The maps are created using Blender and currently only the first map is available. The game also utilizes the cannonJS plugin for the arrow physics.
 
 Gameplay:
-The objective of the game is to survive all four waves of enemies by shooting them with arrows. The player has a limited amount of health, and each time an enemy hits them, he loses health. The player can move around the map to avoid enemy attacks and shoot arrows to take down enemies. The first wave starts with a few enemies, and each subsequent wave adds more enemies and stronger types of enemies. The player must survive all four waves to win the game.
+The objective of the game is to survive all four waves of enemies by shooting them with arrows. The player has a limited amount of health, and each time an enemy hits them, he loses health. The player has invulnerability frame of 3s, during the blinking. The player can move around the map to avoid enemy attacks and shoot arrows to take down enemies. The first wave starts with a few enemies, and each subsequent wave adds more enemies and stronger types of enemies. The player must survive all four waves to win the game.
 
 Maps:
 The maps in Archery Tournament are created using Blender. The first map is currently the only one available, but map 2 and 3 are on their way. The map is small garden with a house and a river, The enemies spawn at random location in the map.

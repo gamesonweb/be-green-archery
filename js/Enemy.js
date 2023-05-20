@@ -13,7 +13,7 @@ export class Enemy {
         this.mesh.setParent(this.bounder);
         this.kills = 0;
         this.canFire = true;
-        this.fireTimeout = 1000;
+        this.fireTimeout = Math.floor(Math.random() * 7000) + 1000;
         this.arrows = [];
     }
 
@@ -35,22 +35,15 @@ export class Enemy {
             // here we need to load enemy in the tribune, they won't move
             let i = Math.floor(Math.random() * 22);
             let spawn_spot = this.scene.getMeshByName("Spawn_" + i);
-            console.log(spawn_spot)
 
             bounder.position = new BABYLON.Vector3(spawn_spot.position.x * 2.9, spawn_spot.position.y * 2.9, spawn_spot.position.z * 2.9);
 
         } else if (this.game.map_id === 3) {
             // Not implemented yet
         }
-
-
-
         bounder.scaling = new BABYLON.Vector3(3, 3, 3);
         bounder.showBoundingBox = true;
         bounder.checkCollisions = true;
-
-
-
         return bounder;
     }
 
@@ -63,7 +56,6 @@ export class Enemy {
 
         // as move can be called even before the bbox is ready.
         if (!this.bounder) return;
-
 
         let archer = scene.getMeshByName("archer").Archer;
 
@@ -88,7 +80,7 @@ export class Enemy {
         } else {
             if (this.canHitArcher) {
                 this.canHitArcher = false;
-                archer.health -= 20;
+                archer.takeDamage(35);
 
                 setTimeout(() => {
                     this.canHitArcher = true;

@@ -11,6 +11,7 @@ You play an archer who needs to survive his journey running through 3 maps !
 -- Controls
 
     ZQSD -> Move
+    Shift -> Sprint
     Mouse to aim, Mouse down to aim and rotate archer following aim
     Left Click to shoot
 

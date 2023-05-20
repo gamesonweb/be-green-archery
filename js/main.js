@@ -28,7 +28,9 @@ function Game() {
     this.wave = 0;
     this.wave_cleared = false;
     this.map_name = null;
-    this.map_id = null
+    this.map_id = null;
+    this.state = 1;
+
 
     this.firstWave = function() {
         this.wave++;
@@ -46,12 +48,14 @@ function Game() {
     };
 
     this.update = function() {
-        //if (!this.scene_launched) return;
+
+        if (this.state === 0) return;
         if (this.wave === 5) {
             console.log("first map finished");
             showText("Completed World " + game.map_name);
             this.wave_cleared = false;
             restartButton();
+            this.state = 0;
             return;
         }
         if (this.wave_cleared) {
@@ -170,7 +174,7 @@ function createArcher(scene) {
             }
         });
 
-        let archer = new Archer(task.loadedMeshes[0], 1, 0.15, 3, scene, task.loadedSkeletons, arrow, game);
+        let archer = new Archer(task.loadedMeshes, 1, 0.15, 3, scene, task.loadedSkeletons, arrow, game);
 
         scene.Archer = archer;
 
@@ -538,7 +542,7 @@ function loadRules() {
             showText("Avoid projectiles, \n and kill them!");
         }, 2000);
         setTimeout(() => {
-            showText("Use ZQSD to move, \nand the mouse to aim and shoot!");
+            showText("Use ZQSD to move, \n Shift to sprint, \nand the mouse to aim and shoot!");
         }, 4000)
     }
     setTimeout(() => {

@@ -2,7 +2,8 @@ import { Arrow } from "./Arrow.js";
 import { loadCrossHair, createArcCamera } from "./Utils.js";
 export class Archer {
     constructor(archerMesh, id, speed, scaling, scene, skeletons, arrow, game) {
-        this.archerMesh = archerMesh;
+        this.archerMesh = archerMesh[0];
+        this.archerVisibleMeshes = archerMesh.slice(1);
         this.skeletons = skeletons;
         this.id = id;
         this.game = game;
@@ -18,6 +19,8 @@ export class Archer {
         this.healthText = null;
         this.killsText = null;
 
+        this.isInvulnerable = false;
+
         this.health = 100;
         this.kills = 0;
 
@@ -25,6 +28,7 @@ export class Archer {
         this.shoulder_camera = null;
 
         this.archerMesh.scaling = new BABYLON.Vector3(scaling, scaling, scaling);
+        this.isVisible = true;
         this.RayToGround = true;
 
         this.canFire = true;
@@ -56,7 +60,6 @@ export class Archer {
         this.createUI();
 
         //this.arrow = new Arrow(this.scene, arrow, this);
-
     }
 
     destruct() {
@@ -152,6 +155,16 @@ export class Archer {
         if (scene.activeCamera.name === "shoulderCamera") {
             scene.activeCamera.position.add(1, 2, 0);
         }
+
+        // show or not the archer Mesh
+        this.archerVisibleMeshes.map((mesh) => {
+            if (this.isVisible) {
+                mesh.visibility = 1;
+            } else {
+                mesh.visibility = 0;
+            }
+        })
+
 
         // handle keyboard input and move the archer
         // src https://playground.babylonjs.com/#AHQEIB#17
@@ -278,6 +291,29 @@ export class Archer {
         //this.shoulder_camera.lowerRadiusLimit = 1;
         let newPos = this.targetForShoulderCamera.position.clone();
         this.shoulder_camera.setPosition(newPos.add(new BABYLON.Vector3(0, 8, .5)));
+    }
+
+    takeDamage(damage) {
+        if (this.isInvulnerable) return;
+        this.isInvulnerable = true;
+        this.health -= damage;
+        this.blinkOnDamage();
+        this.updateUI();
+        setTimeout(() => {
+            this.isInvulnerable = false;
+        }, 3000);
+    }
+
+    blinkOnDamage() {
+        // make the archer blink during 3 seconds when he takes damage to show he is invulnerable
+        let blink = setInterval(() => {
+            this.isVisible = !this.isVisible;
+        }, 100);
+        setTimeout(() => {
+            clearInterval(blink);
+            this.isVisible = true;
+        }, 3000);
+
     }
 
     handleKeys(keydown, spaceBar) {

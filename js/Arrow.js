@@ -51,8 +51,7 @@ export class Arrow {
                         trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
                         parameter: enemy.bounder
                     },
-                    (evt) => {
-                        console.log("hit enemy");
+                    (_) => {
                         enemy.bounder.dispose();
                         enemy.mesh.dispose();
 
@@ -65,17 +64,14 @@ export class Arrow {
     }
 
     fireFromEnemy() {
-        console.log("enemy shooting arrow")
 
         let archer = this.scene.getMeshByName("archer").Archer;
 
         let direction = archer.bounder.position.subtract(this.archer.bounder.position);
         let distance = direction.length(); // we take the vector that is not normalized, not the dir vector
-
-        console.log(distance)
-        let powerOfFire = 70
+        let powerOfFire = 60
         if (Math.floor(distance) < 90) {
-            powerOfFire = 60;
+            powerOfFire = 50;
         }
 
         // normalize the direction vector (convert to vector of length 1)
@@ -87,7 +83,7 @@ export class Arrow {
         this.archer.bounder.rotation.y = alpha;
 
 
-        let azimuth = 0.09;
+        let azimuth = 0.11;
         let aimForceVector = new BABYLON.Vector3(
             direction.x * powerOfFire,
             (direction.y + azimuth) * powerOfFire,
@@ -102,9 +98,8 @@ export class Arrow {
                     trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
                     parameter: archer.bounder
                 },
-                (evt) => {
-                    console.log("hit archer");
-                    archer.health -= 35;
+                (_) => {
+                    archer.takeDamage(15);
                 }));
     }
     update() {
