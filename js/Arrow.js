@@ -33,7 +33,7 @@ export class Arrow {
         // the arrow needs to be fired, so we need an impulse !
         // we apply it to the center of the sphere
         let powerOfFire = 80;
-        let azimuth = 0.1;
+        let azimuth = .2;
         let aimForceVector = new BABYLON.Vector3(
             direction.x * powerOfFire,
             (direction.y + azimuth) * powerOfFire,
@@ -42,6 +42,8 @@ export class Arrow {
 
         this.mesh.physicsImpostor.applyImpulse(aimForceVector, this.mesh.getAbsolutePosition());
 
+
+        // register action to check if arrow hit enemy
         if (!this.scene.enemy.length === 0) return;
         this.scene.enemy.forEach(enemy => {
             this.mesh.actionManager.registerAction(
@@ -62,12 +64,54 @@ export class Arrow {
         });
     }
 
+    fireFromEnemy() {
+        console.log("enemy shooting arrow")
+
+        let archer = this.scene.getMeshByName("archer").Archer;
+
+        let direction = archer.bounder.position.subtract(this.archer.bounder.position);
+        let distance = direction.length(); // we take the vector that is not normalized, not the dir vector
+
+        console.log(distance)
+        let powerOfFire = 70
+        if (Math.floor(distance) < 90) {
+            powerOfFire = 60;
+        }
+
+        // normalize the direction vector (convert to vector of length 1)
+        let dir = direction.normalize();
+
+        // angle between the direction vector and the z axis
+        let alpha = Math.atan2(-dir.x, -dir.z);
+
+        this.archer.bounder.rotation.y = alpha;
+
+
+        let azimuth = 0.09;
+        let aimForceVector = new BABYLON.Vector3(
+            direction.x * powerOfFire,
+            (direction.y + azimuth) * powerOfFire,
+            direction.z * powerOfFire
+        );
+
+        this.mesh.physicsImpostor.applyImpulse(aimForceVector, this.mesh.getAbsolutePosition());
+
+        // register action to check if arrow hit archer
+        this.mesh.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction({
+                    trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
+                    parameter: archer.bounder
+                },
+                (evt) => {
+                    console.log("hit archer");
+                    archer.health -= 35;
+                }));
+    }
     update() {
         if (!this.isFired) return;
         if (getGroundHeightFromMesh(this.scene, this.mesh) >= this.mesh.position.y) {
             this.mesh.physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());
             this.mesh.physicsImpostor.setMass(0);
-
             this.isFired = false;
         }
     }

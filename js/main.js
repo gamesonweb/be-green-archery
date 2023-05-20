@@ -18,7 +18,7 @@ const waves = {
     1: 1,
     2: 5,
     3: 7,
-    4: 9
+    4: 7
 }
 
 var game = new Game();
@@ -28,6 +28,7 @@ function Game() {
     this.wave = 0;
     this.wave_cleared = false;
     this.map_name = null;
+    this.map_id = null
 
     this.firstWave = function() {
         this.wave++;
@@ -49,8 +50,8 @@ function Game() {
         if (this.wave === 5) {
             console.log("first map finished");
             showText("Completed World " + game.map_name);
-            this.wave = 0;
             this.wave_cleared = false;
+            restartButton();
             return;
         }
         if (this.wave_cleared) {
@@ -71,21 +72,6 @@ function startGame() {
     engine = new BABYLON.Engine(canvas, true);
     scene = createScene();
     loadMenu(scene);
-    //scene = createScene();
-
-    // let button = document.querySelector("#debug");
-    // button.addEventListener("click", () => {
-    //     scene.groundMeshes.forEach(mesh => {
-    //         mesh.visibility = 0;
-    //     });
-    // });
-
-    // let button_2 = document.querySelector("#debug-2");
-    // button_2.addEventListener("click", () => {
-    //     scene.groundMeshes.forEach(mesh => {
-    //         mesh.visibility = 1.0;
-    //     });
-    // });
 
     scene.toRender = () => {
         // update the scene
@@ -106,41 +92,24 @@ function startGame() {
             }
 
             if (scene.enemy.length > 0) {
-                scene.enemy.forEach(enemy => {
-                    enemy.followArcher(scene);
-                });
+                if (game.map_id === 1) {
+                    scene.enemy.forEach(enemy => {
+                        enemy.followArcher(scene);
+                    });
+                } else if (game.map_id === 2) {
+                    scene.enemy.forEach(enemy => {
+                        enemy.fireArrow();
+                    });
+                }
             }
             game.update();
         }
         scene.render();
     };
-    // scene.assetsManager.load();
 }
 
 function createScene() {
     let scene = new BABYLON.Scene(engine);
-
-    // // enable physics
-    // scene.enablePhysics();
-
-    // // modify some default settings (i.e pointer events to prevent cursor to go
-    // // out of the game window)
-    // modifySettings(scene, document, window, canvas);
-    // addKeyListener(scene, canvas);
-
-    // scene.assetsManager = configureAssetManager(scene);
-    // scene.CollisionsEnabled = true;
-
-    // scene.groundMeshes = [];
-    // scene.enemy = [];
-
-    // loadFirsMap(scene);
-
-    // // create lights
-    // createHemisphericLight(scene);
-
-    // createArcher(scene);
-
     return scene;
 }
 
@@ -234,6 +203,7 @@ function createTestGround(scene) {
 
 function loadFirsMap(scene) {
     game.map_name = "Not a map designer"
+    game.map_id = 1
     let groundTask = scene.assetsManager.addMeshTask(
         "groundTask",
         "",
@@ -245,7 +215,6 @@ function loadFirsMap(scene) {
     let i = 0;
     groundTask.onSuccess = function(task) {
         let root = task.loadedMeshes[0];
-        //root.scaling = new BABYLON.Vector3(10, 10, 10);
         root.scaling = new BABYLON.Vector3(3.1, 3.1, 3.1);
         let count = 0;
         task.loadedMeshes.forEach(element => {
@@ -288,6 +257,37 @@ function loadFirsMap(scene) {
     }
 }
 
+
+function loadSecondMap(scene) {
+    game.map_name = "Defnitly Not a map designer !!"
+    game.map_id = 2
+    let groundTask = scene.assetsManager.addMeshTask(
+        "groundTask",
+        "",
+        "assets/ground/",
+        "Colloseum.glb",
+    );
+
+    let i = 0;
+    groundTask.onSuccess = function(task) {
+        let root = task.loadedMeshes[0];
+        root.scaling = new BABYLON.Vector3(2.9, 2.9, 2.9);
+
+        task.loadedMeshes.forEach(element => {
+            if (element.id.includes("ColloseumGround")) {
+                element.name = "ground";
+                scene.groundMeshes.push(element);
+            } else if (element.id.includes("Spawn")) {
+                element.name = "Spawn_" + i++;
+            } else if (element.id.includes("Tribune")) {
+                element.name = "ground_tribune_" + Math.floor(Math.random() * 3)
+            }
+
+        })
+    }
+}
+
+
 function showText(message) {
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
@@ -313,7 +313,6 @@ function showText(message) {
     });
 
 }
-
 
 function loadEnemyWaves(scene, wave) {
     game.wave = wave;
@@ -353,17 +352,15 @@ function loadEnemyWaves(scene, wave) {
                 waveText.dispose();
                 for (let i = 0; i < waves[game.wave]; i++) {
                     if (game.wave === 4) {
-                        scene.enemy.push(new Enemy(scene, null, .3));
+                        scene.enemy.push(new Enemy(scene, null, game, .3));
                     } else {
-                        scene.enemy.push(new Enemy(scene, null));
+                        scene.enemy.push(new Enemy(scene, null, game));
                     }
-
                 }
             });
         }, 2000);
     });
 }
-
 
 function showGameOver() {
     let advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -375,6 +372,14 @@ function showGameOver() {
     gameOverText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
 
 
+    restartButton();
+
+    advancedTexture.addControl(gameOverText);
+
+}
+
+function restartButton() {
+    let advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     let restartButton = BABYLON.GUI.Button.CreateSimpleButton("restart", "Restart");
     restartButton.width = "150px";
     restartButton.height = "40px";
@@ -385,8 +390,6 @@ function showGameOver() {
     restartButton.onPointerUpObservable.add(() => {
         location.reload();
     });
-
-    advancedTexture.addControl(gameOverText);
     advancedTexture.addControl(restartButton);
 }
 
@@ -423,6 +426,7 @@ function loadMenu(scene) {
     startButton.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
     startButton.onPointerUpObservable.add(() => {
         console.log("start map 1");
+        game.map_name = "Map 1";
         // loading the scene for the first map
 
         modifySettings(scene, document, window, canvas);
@@ -455,8 +459,28 @@ function loadMenu(scene) {
     startButton2.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
     startButton2.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
     startButton2.onPointerUpObservable.add(() => {
-        // TO-DO
         // loading the scene for the second map
+        console.log("start map 2");
+        game.map_name = "Map 2";
+        modifySettings(scene, document, window, canvas);
+        addKeyListener(scene, canvas);
+
+        // enable physics for cannon.js
+        scene.enablePhysics();
+
+        // remove the menu
+        startButton.dispose();
+        startButton2.dispose();
+        title.dispose();
+        rect_title.dispose();
+
+
+        scene.assetsManager = configureAssetManager(scene, "Map 2");
+        scene.groundMeshes = [];
+        scene.enemy = [];
+        loadSecondMap(scene);
+        createArcher(scene);
+        scene.assetsManager.load();
     });
 
     advancedTexture.addControl(title);
@@ -501,10 +525,17 @@ function loadMenu(scene) {
 }
 
 function loadRules() {
-    let mapName = "Map 1";
-    if (mapName === "Map 1") {
+
+    if (game.map_id === 1) {
         setTimeout(() => {
             showText("Don't let the enemies touch you, \nkill them all!");
+        }, 2000);
+        setTimeout(() => {
+            showText("Use ZQSD to move, \nand the mouse to aim and shoot!");
+        }, 4000)
+    } else if (game.map_id === 2) {
+        setTimeout(() => {
+            showText("Avoid projectiles, \n and kill them!");
         }, 2000);
         setTimeout(() => {
             showText("Use ZQSD to move, \nand the mouse to aim and shoot!");

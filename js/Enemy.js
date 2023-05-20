@@ -1,14 +1,20 @@
 import { getGroundHeightFromMesh } from './Utils.js';
+import { Arrow } from './Arrow.js';
 
 export class Enemy {
-    constructor(scene, mesh, speed = .1) {
+    constructor(scene, mesh, game, speed = .1) {
         this.scene = scene;
+        this.game = game;
         this.mesh = BABYLON.MeshBuilder.CreateBox("enemy", { height: 2, width: 1, depth: 1 }, this.scene);
         this.mesh.isVisible = false;
         this.canHitArcher = true;
         this.speed = speed;
         this.bounder = this.createBounder();
         this.mesh.setParent(this.bounder);
+        this.kills = 0;
+        this.canFire = true;
+        this.fireTimeout = 1000;
+        this.arrows = [];
     }
 
     destruct() {
@@ -19,15 +25,32 @@ export class Enemy {
     createBounder() {
         let bounder = BABYLON.MeshBuilder.CreateBox("bounder", { height: 2, width: 1, depth: 1 }, this.scene);
         bounder.name = "enemyBounder";
-        let ground = this.scene.getMeshByName("GroundColloder");
 
-        bounder.position = new BABYLON.Vector3(Math.random() * 100 - 50, ground.position.y, Math.random() * 60 - 30);
-        bounder.position.y = getGroundHeightFromMesh(this.scene, bounder) + 3;
-        bounder.position.y += 3;
+        if (this.game.map_id === 1) {
+            let ground = this.scene.getMeshByName("GroundColloder");
+            bounder.position = new BABYLON.Vector3(Math.random() * 100 - 50, ground.position.y, Math.random() * 60 - 30);
+            bounder.position.y = getGroundHeightFromMesh(this.scene, bounder) + 3;
+            bounder.position.y += 3;
+        } else if (this.game.map_id === 2) {
+            // here we need to load enemy in the tribune, they won't move
+            let i = Math.floor(Math.random() * 22);
+            let spawn_spot = this.scene.getMeshByName("Spawn_" + i);
+            console.log(spawn_spot)
+
+            bounder.position = new BABYLON.Vector3(spawn_spot.position.x * 2.9, spawn_spot.position.y * 2.9, spawn_spot.position.z * 2.9);
+
+        } else if (this.game.map_id === 3) {
+            // Not implemented yet
+        }
+
+
 
         bounder.scaling = new BABYLON.Vector3(3, 3, 3);
         bounder.showBoundingBox = true;
         bounder.checkCollisions = true;
+
+
+
         return bounder;
     }
 
@@ -72,5 +95,17 @@ export class Enemy {
                 }, 2000);
             }
         }
+    }
+
+    fireArrow() {
+        if (!this.canFire) return;
+        this.canFire = false;
+
+        setTimeout(() => {
+            this.canFire = true;
+        }, this.fireTimeout);
+
+        this.arrows.push(new Arrow(this.scene, null, this));
+        this.arrows[this.arrows.length - 1].fireFromEnemy();
     }
 }

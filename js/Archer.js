@@ -31,8 +31,8 @@ export class Archer {
         this.bounder = this.createBox();
         this.bounder.frontVector = new BABYLON.Vector3(0, 0, 1);
         this.bounder.lastGoodPosition = this.bounder.position;
-        this.targetForShoulderCamera = this.createShoulderTarget();
-        this.isSoulderCameraSet = false;
+        // this.targetForShoulderCamera = this.createShoulderTarget();
+        // this.isSoulderCameraSet = false;
 
         this.archerMesh.setParent(this.bounder);
         this.archerMesh.Archer = this;
@@ -121,9 +121,17 @@ export class Archer {
                 mesh.id.includes("Stepping stone") ||
                 mesh.id.includes("StairsCollider") ||
                 mesh.id.includes("FloorCollider") ||
-                mesh.id.includes("Road");
+                mesh.id.includes("Road") ||
+                mesh.id.includes("Water");
         });
         if (pickInfo.hit) {
+            // log the name of the mesh hit
+            if (pickInfo.pickedMesh.id.includes("Water")) {
+                this.health = 0;
+                this.updateUI();
+            }
+
+
             groundHeight = pickInfo.pickedPoint.y;
         }
         return groundHeight;
@@ -219,17 +227,20 @@ export class Archer {
         }
 
         if (scene.inputMap["shift"]) {
-            const name = this.currentAnimation.name;
-            if (name === "StdWalkFwd") {
-                this.setCurrentAnimation("StdRunFwd");
-                this.speed = new BABYLON.Vector3(this.constSpeed * 2, this.constSpeed * 2, this.constSpeed * 2);
-            } else if (name === "StdWalkBack") {
-                this.speed = new BABYLON.Vector3(this.constSpeed * 1.3, this.constSpeed * 1.3, this.constSpeed * 1.3);
-                this.setCurrentAnimation("StdRunBack");
+            if (scene.inputMap["z"] || scene.inputMap["arrowup"] || scene.inputMap["s"] || scene.inputMap["arrowdown"]) {
+                const name = this.currentAnimation.name;
+                if (name === "StdWalkFwd") {
+                    this.setCurrentAnimation("StdRunFwd");
+                    this.speed = new BABYLON.Vector3(this.constSpeed * 2, this.constSpeed * 2, this.constSpeed * 2);
+                } else if (name === "StdWalkBack") {
+                    this.speed = new BABYLON.Vector3(this.constSpeed * 1.3, this.constSpeed * 1.3, this.constSpeed * 1.3);
+                    this.setCurrentAnimation("StdRunBack");
+                }
 
+                this.doAnimation(true);
+                keydown = true;
             }
-            this.doAnimation(true);
-            keydown = true;
+
         }
         if (scene.inputMap["shift"] === undefined || !scene.inputMap["shift"]) {
             // if shift isn't pressed, set the speed back to normal

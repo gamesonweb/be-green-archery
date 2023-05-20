@@ -6,7 +6,7 @@ BabylonJS game made for Gamesonweb contest
 
 You play an archer who needs to survive his journey running through 3 maps !
 
-    Only map 1 is available for now but the 2 other are already created and need some fixes
+    Map 1 and 2 are available and the 3rd one still need some fixes
 
 -- Controls
 
