@@ -16,7 +16,7 @@ You play an archer who needs to survive his journey running through 3 maps !
     Left Click to shoot
 
 
-link to web site -> http://cloud84-blip.github.io
+link to web site -> [http://cloud84-blip.github.io](https://cloud84-blip.github.io/ArcheryTournamentBabylonJS/)
 
 link to github repo -> https://github.com/Cloud84-blip/ArcheryTournamentBabylonJS.git
 
